@@ -271,6 +271,16 @@ FlightMap {
         }
     }
 
+    MapItemView {
+        model: QGroundControl.multiVehicleManager.vehicles
+        delegate: MapCircle {
+            center:         object.coordinate
+            radius:         object.gps.hdop.value
+            border.color:   Qt.rgba(1,0,0,1.0)
+            color:          Qt.rgba(1,0,0,0.1)
+            z:              QGroundControl.zOrderVehicles
+        }
+    }
     // Add the vehicles to the map
     MapItemView {
         model: QGroundControl.multiVehicleManager.vehicles
