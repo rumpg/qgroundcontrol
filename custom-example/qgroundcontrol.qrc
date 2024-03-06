@@ -247,7 +247,6 @@
 		<file alias="QGroundControl/FlightMap/MissionLineView.qml">../src/FlightMap/MapItems/MissionLineView.qml</file>
 		<file alias="QGroundControl/FlightMap/PhotoVideoControl.qml">../src/FlightMap/Widgets/PhotoVideoControl.qml</file>
 		<file alias="QGroundControl/FlightMap/PlanMapItems.qml">../src/FlightMap/MapItems/PlanMapItems.qml</file>
-		<file alias="QGroundControl/FlightMap/PolygonEditor.qml">../src/FlightMap/MapItems/PolygonEditor.qml</file>
 		<file alias="QGroundControl/FlightMap/ProximityRadarMapView.qml">../src/FlightMap/MapItems/ProximityRadarMapView.qml</file>
 		<file alias="QGroundControl/FlightMap/QGCArtificialHorizon.qml">../src/FlightMap/Widgets/QGCArtificialHorizon.qml</file>
 		<file alias="QGroundControl/FlightMap/QGCAttitudeHUD.qml">../src/FlightMap/Widgets/QGCAttitudeHUD.qml</file>

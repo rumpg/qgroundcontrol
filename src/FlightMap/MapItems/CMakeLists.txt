@@ -7,7 +7,6 @@ add_custom_target(FligthMapItemsQml
 		MissionItemView.qml
 		MissionLineView.qml
 		PlanMapItems.qml
-		PolygonEditor.qml
 		ProximityRadarMapView.qml
 		SplitIndicator.qml
 		VehicleMapItem.qml
