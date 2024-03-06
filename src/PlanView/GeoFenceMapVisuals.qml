@@ -107,6 +107,30 @@ Item {
             interactive:        _root.interactive && mapPolygon && mapPolygon.interactive
         }
     }
+    Instantiator {
+        model: _polygons
+
+        delegate : QGCMapPolygonVisuals {
+            parent:             _root
+            mapControl:         map
+            mapPolygon:         object.groundBuffer
+            borderWidth:        _borderWidthInclusion
+            borderColor:        'red'
+            interactive:        false
+        }
+    }
+    Instantiator {
+        model: _polygons
+
+        delegate : QGCMapPolygonVisuals {
+            parent:             _root
+            mapControl:         map
+            mapPolygon:         object.contingencyZone
+            borderWidth:        _borderWidthInclusion
+            borderColor:        'blue'
+            interactive:        false
+        }
+    }
 
     Instantiator {
         model: _circles

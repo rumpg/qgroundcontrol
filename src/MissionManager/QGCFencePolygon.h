@@ -22,7 +22,9 @@ public:
 
     const QGCFencePolygon& operator=(const QGCFencePolygon& other);
 
-    Q_PROPERTY(bool inclusion READ inclusion WRITE setInclusion NOTIFY inclusionChanged)
+    Q_PROPERTY(bool             inclusion       READ inclusion          WRITE setInclusion  NOTIFY inclusionChanged)
+    Q_PROPERTY(QGCMapPolygon *  groundBuffer    READ groundBuffer                           CONSTANT)
+    Q_PROPERTY(QGCMapPolygon *  contingencyZone READ contingencyZone                        CONSTANT)
 
     /// Saves the QGCFencePolygon to the json object.
     ///     @param json Json object to save to
@@ -35,23 +37,36 @@ public:
     /// @return true: success, false: failure (errorString set)
     bool loadFromJson(const QJsonObject& json, bool required, QString& errorString);
 
+    void setD1(double d1);
+    void setD2(double d2);
+
     // Property methods
 
-    bool inclusion      (void) const { return _inclusion; }
-    void setInclusion   (bool inclusion);
+    bool inclusion                  (void) const { return _inclusion; }
+    void setInclusion               (bool inclusion);
+    QGCMapPolygon * groundBuffer      (void) { return &_groundBuffer; }
+    QGCMapPolygon * contingencyZone   (void) { return &_contingencyZone; }
 
 signals:
     void inclusionChanged   (bool inclusion);
 
 private slots:
     void _setDirty(void);
+    void _updateGroundBuffer(void);
+    void _updateContingencyZone(void);
 
 private:
     void _init(void);
 
     bool _inclusion;
+    double _d1;
+    double _d2;
+    QGCMapPolygon _contingencyZone;
+    QGCMapPolygon _groundBuffer;
 
-    static const int _jsonCurrentVersion = 1;
 
     static const char* _jsonInclusionKey;
+
+    static const int _jsonCurrentVersion = 1;
+    static constexpr double _defaultFenceMargin = 20.;
 };
