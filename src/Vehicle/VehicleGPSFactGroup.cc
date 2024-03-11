@@ -18,6 +18,7 @@ VehicleGPSFactGroup::VehicleGPSFactGroup(QObject* parent)
     , _mgrsFact             (0, _mgrsFactName,              FactMetaData::valueTypeString)
     , _hdopFact             (0, _hdopFactName,              FactMetaData::valueTypeDouble)
     , _vdopFact             (0, _vdopFactName,              FactMetaData::valueTypeDouble)
+    , _haccFact             (0, _haccFactName,              FactMetaData::valueTypeDouble)
     , _courseOverGroundFact (0, _courseOverGroundFactName,  FactMetaData::valueTypeDouble)
     , _countFact            (0, _countFactName,             FactMetaData::valueTypeInt32)
     , _lockFact             (0, _lockFactName,              FactMetaData::valueTypeInt32)
@@ -27,6 +28,7 @@ VehicleGPSFactGroup::VehicleGPSFactGroup(QObject* parent)
     _addFact(&_mgrsFact,                _mgrsFactName);
     _addFact(&_hdopFact,                _hdopFactName);
     _addFact(&_vdopFact,                _vdopFactName);
+    _addFact(&_haccFact,                _haccFactName);
     _addFact(&_courseOverGroundFact,    _courseOverGroundFactName);
     _addFact(&_lockFact,                _lockFactName);
     _addFact(&_countFact,               _countFactName);
@@ -36,6 +38,7 @@ VehicleGPSFactGroup::VehicleGPSFactGroup(QObject* parent)
     _mgrsFact.setRawValue("");
     _hdopFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
     _vdopFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
+    _haccFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
     _courseOverGroundFact.setRawValue(std::numeric_limits<float>::quiet_NaN());
 }
 
@@ -67,6 +70,7 @@ void VehicleGPSFactGroup::_handleGpsRawInt(mavlink_message_t& message)
     count()->setRawValue            (gpsRawInt.satellites_visible == 255 ? 0 : gpsRawInt.satellites_visible);
     hdop()->setRawValue             (gpsRawInt.eph == UINT16_MAX ? qQNaN() : gpsRawInt.eph / 100.0);
     vdop()->setRawValue             (gpsRawInt.epv == UINT16_MAX ? qQNaN() : gpsRawInt.epv / 100.0);
+    hacc()->setRawValue             (gpsRawInt.h_acc / 1000.0);
     courseOverGround()->setRawValue (gpsRawInt.cog == UINT16_MAX ? qQNaN() : gpsRawInt.cog / 100.0);
     lock()->setRawValue             (gpsRawInt.fix_type);
 }

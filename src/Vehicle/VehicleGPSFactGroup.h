@@ -24,6 +24,7 @@ public:
     Q_PROPERTY(Fact* mgrs               READ mgrs               CONSTANT)
     Q_PROPERTY(Fact* hdop               READ hdop               CONSTANT)
     Q_PROPERTY(Fact* vdop               READ vdop               CONSTANT)
+    Q_PROPERTY(Fact* hacc               READ hacc               CONSTANT)
     Q_PROPERTY(Fact* courseOverGround   READ courseOverGround   CONSTANT)
     Q_PROPERTY(Fact* count              READ count              CONSTANT)
     Q_PROPERTY(Fact* lock               READ lock               CONSTANT)
@@ -33,6 +34,7 @@ public:
     Fact* mgrs              () { return &_mgrsFact; }
     Fact* hdop              () { return &_hdopFact; }
     Fact* vdop              () { return &_vdopFact; }
+    Fact* hacc              () { return &_haccFact; }
     Fact* courseOverGround  () { return &_courseOverGroundFact; }
     Fact* count             () { return &_countFact; }
     Fact* lock              () { return &_lockFact; }
@@ -50,6 +52,7 @@ protected:
     const QString _mgrsFactName =                QStringLiteral("mgrs");
     const QString _hdopFactName =                QStringLiteral("hdop");
     const QString _vdopFactName =                QStringLiteral("vdop");
+    const QString _haccFactName =                QStringLiteral("hacc");
     const QString _courseOverGroundFactName =    QStringLiteral("courseOverGround");
     const QString _countFactName =               QStringLiteral("count");
     const QString _lockFactName =                QStringLiteral("lock");
@@ -59,6 +62,7 @@ protected:
     Fact _mgrsFact;
     Fact _hdopFact;
     Fact _vdopFact;
+    Fact _haccFact;
     Fact _courseOverGroundFact;
     Fact _countFact;
     Fact _lockFact;

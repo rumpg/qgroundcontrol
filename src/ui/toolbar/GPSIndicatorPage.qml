@@ -55,6 +55,11 @@ ToolIndicatorPage {
                 }
 
                 LabelledLabel {
+                    label:      qsTr("Horizontal Accuracy")
+                    labelText:  activeVehicle ? activeVehicle.gps.hacc.valueString : valueNA
+                }
+
+                LabelledLabel {
                     label:      qsTr("Course Over Ground")
                     labelText:  activeVehicle ? activeVehicle.gps.courseOverGround.valueString : valueNA
                 }

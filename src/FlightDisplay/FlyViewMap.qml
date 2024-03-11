@@ -275,7 +275,7 @@ FlightMap {
         model: QGroundControl.multiVehicleManager.vehicles
         delegate: MapCircle {
             center:         object.coordinate
-            radius:         object.gps.hdop.value
+            radius:         object.gps.hacc.value * 3
             border.color:   Qt.rgba(1,0,0,1.0)
             color:          Qt.rgba(1,0,0,0.1)
             z:              QGroundControl.zOrderVehicles
