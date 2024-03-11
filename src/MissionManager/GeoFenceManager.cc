@@ -140,7 +140,7 @@ void GeoFenceManager::_planManagerLoadComplete(bool removeAllRequested)
 
     MAV_CMD expectedCommand = (MAV_CMD)0;
     int expectedVertexCount = 0;
-    QGCFencePolygon nextPolygon(true /* inclusion */);
+    QGCFencePolygon nextPolygon(true /* inclusion */, _vehicle);
     const QList<MissionItem*>& fenceItems = missionItems();
 
     for (int i=0; i<fenceItems.count(); i++) {

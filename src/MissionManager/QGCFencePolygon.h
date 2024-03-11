@@ -11,13 +11,15 @@
 
 #include "QGCMapPolygon.h"
 
+class Vehicle;
+
 /// The QGCFencePolygon class provides a polygon used by GeoFence support.
 class QGCFencePolygon : public QGCMapPolygon
 {
     Q_OBJECT
 
 public:
-    QGCFencePolygon(bool inclusion, QObject* parent = nullptr);
+    QGCFencePolygon(bool inclusion, Vehicle* vehicle, QObject* parent = nullptr);
     QGCFencePolygon(const QGCFencePolygon& other, QObject* parent = nullptr);
 
     const QGCFencePolygon& operator=(const QGCFencePolygon& other);
@@ -37,18 +39,17 @@ public:
     /// @return true: success, false: failure (errorString set)
     bool loadFromJson(const QJsonObject& json, bool required, QString& errorString);
 
-    void setD1(double d1);
-    void setD2(double d2);
+    void setVehicle(const Vehicle* vehicle);
 
     // Property methods
 
     bool inclusion                  (void) const { return _inclusion; }
     void setInclusion               (bool inclusion);
-    QGCMapPolygon * groundBuffer      (void) { return &_groundBuffer; }
-    QGCMapPolygon * contingencyZone   (void) { return &_contingencyZone; }
+    QGCMapPolygon * groundBuffer    (void) { return &_groundBuffer; }
+    QGCMapPolygon * contingencyZone (void) { return &_contingencyZone; }
 
 signals:
-    void inclusionChanged   (bool inclusion);
+    void inclusionChanged       (bool inclusion);
 
 private slots:
     void _setDirty(void);
@@ -57,16 +58,19 @@ private slots:
 
 private:
     void _init(void);
+    void _updateFenceMargin(void);
+    void _updateGroundBufferMargin(void);
 
     bool _inclusion;
-    double _d1;
-    double _d2;
+    const Vehicle* _vehicle;
+    double _fenceMargin;
+    double _groundBufferMargin;
     QGCMapPolygon _contingencyZone;
     QGCMapPolygon _groundBuffer;
-
 
     static const char* _jsonInclusionKey;
 
     static const int _jsonCurrentVersion = 1;
-    static constexpr double _defaultFenceMargin = 20.;
+    static constexpr double _defaultFenceMargin = 4.;
+    static constexpr double _defaultGroundBufferMargin = 15.;
 };

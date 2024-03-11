@@ -107,6 +107,11 @@ void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
     }
 
     _managerVehicle = managerVehicle;
+    for (int i=0; i<_polygons.count(); i++) {
+        QGCFencePolygon* polygon = _polygons.value<QGCFencePolygon*>(i);
+        polygon->setVehicle(_managerVehicle);
+    }
+
     if (!_managerVehicle) {
         qWarning() << "GeoFenceController::managerVehicleChanged managerVehicle=nullptr";
         return;
@@ -162,7 +167,7 @@ bool GeoFenceController::load(const QJsonObject& json, QString& errorString)
             return false;
         }
 
-        QGCFencePolygon* fencePolygon = new QGCFencePolygon(false /* inclusion */, this /* parent */);
+        QGCFencePolygon* fencePolygon = new QGCFencePolygon(false /* inclusion */, _managerVehicle, this /* parent */);
         if (!fencePolygon->loadFromJson(jsonPolygonValue.toObject(), true /* required */, errorString)) {
             return false;
         }
@@ -431,7 +436,7 @@ void GeoFenceController::addInclusionPolygon(QGeoCoordinate topLeft, QGeoCoordin
     bottomLeft =        center.atDistanceAndAzimuth(halfWidthMeters, -90).atDistanceAndAzimuth(halfHeightMeters, 180);
     bottomRight =       center.atDistanceAndAzimuth(halfWidthMeters, 90).atDistanceAndAzimuth(halfHeightMeters, 180);
 
-    QGCFencePolygon* polygon = new QGCFencePolygon(true /* inclusion */, this);
+    QGCFencePolygon* polygon = new QGCFencePolygon(true /* inclusion */, _managerVehicle, this);
     polygon->appendVertex(topLeft);
     polygon->appendVertex(topRight);
     polygon->appendVertex(bottomRight);
