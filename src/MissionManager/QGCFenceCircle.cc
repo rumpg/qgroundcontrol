@@ -10,25 +10,44 @@
 #include "QGCFenceCircle.h"
 #include "JsonHelper.h"
 
+#include "QGCFenceCommon.h"
+
 const char* QGCFenceCircle::_jsonInclusionKey = "inclusion";
 
-QGCFenceCircle::QGCFenceCircle(QObject* parent)
-    : QGCMapCircle  (parent)
-    , _inclusion    (true)
+QGCFenceCircle::QGCFenceCircle(Vehicle* vehicle, QObject* parent)
+    : QGCMapCircle          (parent)
+    , _inclusion            (true)
+    , _vehicle              (vehicle)
+    , _fenceMargin          (getFenceMargin(vehicle))
+    , _groundBufferMargin   (getGroundBufferMargin(vehicle))
+    , _contingencyZone      (*this)
+    , _groundBuffer         (*this)
 {
     _init();
 }
 
-QGCFenceCircle::QGCFenceCircle(const QGeoCoordinate& center, double radius, bool inclusion, QObject* parent)
-    : QGCMapCircle  (center, radius, false /* showRotation */, true /* clockwiseRotation */, parent)
-    , _inclusion    (inclusion)
+QGCFenceCircle::QGCFenceCircle(const QGeoCoordinate& center, double radius, bool inclusion, Vehicle* vehicle, QObject* parent)
+    : QGCMapCircle          (center, radius, false /* showRotation */, true /* clockwiseRotation */, parent)
+    , _inclusion            (inclusion)
+    , _vehicle              (vehicle)
+    , _fenceMargin          (getFenceMargin(vehicle))
+    , _groundBufferMargin   (getGroundBufferMargin(vehicle))
+    , _contingencyZone      (*this)
+    , _groundBuffer         (*this)
 {
+    _updateMarginZoneCenters(this->center());
+    _updateMarginZoneRadii(this->radius()->rawValue());
     _init();
 }
 
 QGCFenceCircle::QGCFenceCircle(const QGCFenceCircle& other, QObject* parent)
-    : QGCMapCircle  (other, parent)
-    , _inclusion    (other._inclusion)
+    : QGCMapCircle          (other, parent)
+    , _inclusion            (other._inclusion)
+    , _vehicle              (other._vehicle)
+    , _fenceMargin          (other._fenceMargin)
+    , _groundBufferMargin   (other._groundBufferMargin)
+    , _contingencyZone      (other._contingencyZone)
+    , _groundBuffer         (other._groundBuffer)
 {
     _init();
 }
@@ -36,6 +55,8 @@ QGCFenceCircle::QGCFenceCircle(const QGCFenceCircle& other, QObject* parent)
 void QGCFenceCircle::_init(void)
 {
     connect(this, &QGCFenceCircle::inclusionChanged, this, &QGCFenceCircle::_setDirty);
+    connect(this, &QGCMapCircle::centerChanged, this, &QGCFenceCircle::_updateMarginZoneCenters);
+    connect(radius(), &Fact::rawValueChanged, this, &QGCFenceCircle::_updateMarginZoneRadii);
 }
 
 const QGCFenceCircle& QGCFenceCircle::operator=(const QGCFenceCircle& other)
@@ -43,6 +64,7 @@ const QGCFenceCircle& QGCFenceCircle::operator=(const QGCFenceCircle& other)
     QGCMapCircle::operator=(other);
 
     setInclusion(other._inclusion);
+    setVehicle(other._vehicle);
 
     return *this;
 }
@@ -50,6 +72,20 @@ const QGCFenceCircle& QGCFenceCircle::operator=(const QGCFenceCircle& other)
 void QGCFenceCircle::_setDirty(void)
 {
     setDirty(true);
+}
+
+void QGCFenceCircle::_updateMarginZoneRadii(QVariant newRadius)
+{
+    const auto newGroundBufferRadius = newRadius.toDouble() + _groundBufferMargin;
+    _groundBuffer.radius()->setRawValue(newGroundBufferRadius);
+    const auto newContinencyZoneRadius = newRadius.toDouble() - _fenceMargin;
+    _contingencyZone.radius()->setRawValue(newContinencyZoneRadius);
+}
+
+void QGCFenceCircle::_updateMarginZoneCenters(QGeoCoordinate newCenter)
+{
+    _groundBuffer.setCenter(newCenter);
+    _contingencyZone.setCenter(newCenter);
 }
 
 void QGCFenceCircle::saveToJson(QJsonObject& json)
@@ -83,6 +119,14 @@ bool QGCFenceCircle::loadFromJson(const QJsonObject& json, QString& errorString)
     setInclusion(json[_jsonInclusionKey].toBool());
 
     return true;
+}
+
+void QGCFenceCircle::setVehicle(const Vehicle* vehicle)
+{
+    _vehicle = vehicle;
+    _fenceMargin = getFenceMargin(vehicle);
+    _groundBufferMargin = getGroundBufferMargin(vehicle);
+    _updateMarginZoneRadii(radius()->rawValue());
 }
 
 void QGCFenceCircle::setInclusion(bool inclusion)

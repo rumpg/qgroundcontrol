@@ -410,6 +410,7 @@ HEADERS += \
     src/GPS/Drivers/src/base_station.h \
 
 SOURCES += \
+    src/MissionManager/QGCFenceCommon.h \
     src/QmlControls/CustomActionManager.cc \
     src/Vehicle/VehicleEscStatusFactGroup.cc \
     src/api/QGCCorePlugin.cc \

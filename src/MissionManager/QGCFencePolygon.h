@@ -53,13 +53,11 @@ signals:
 
 private slots:
     void _setDirty(void);
-    void _updateGroundBuffer(void);
     void _updateContingencyZone(void);
+    void _updateGroundBuffer(void);
 
 private:
     void _init(void);
-    void _updateFenceMargin(void);
-    void _updateGroundBufferMargin(void);
 
     bool _inclusion;
     const Vehicle* _vehicle;
@@ -71,6 +69,4 @@ private:
     static const char* _jsonInclusionKey;
 
     static const int _jsonCurrentVersion = 1;
-    static constexpr double _defaultFenceMargin = 4.;
-    static constexpr double _defaultGroundBufferMargin = 15.;
 };

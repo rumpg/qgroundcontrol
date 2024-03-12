@@ -10,10 +10,6 @@
 #include "GeoFenceManager.h"
 #include "Vehicle.h"
 #include "QmlObjectListModel.h"
-#include "ParameterManager.h"
-#include "QGCApplication.h"
-#include "QGCMapPolygon.h"
-#include "QGCMapCircle.h"
 
 QGC_LOGGING_CATEGORY(GeoFenceManagerLog, "GeoFenceManagerLog")
 
@@ -175,7 +171,7 @@ void GeoFenceManager::_planManagerLoadComplete(bool removeAllRequested)
                 emit error(IncompletePolygonLoad, tr("GeoFence load: Incomplete polygon loaded"));
                 break;
             }
-            QGCFenceCircle circle(QGeoCoordinate(item->param5(), item->param6()), item->param1(), command == MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION /* inclusion */);
+            QGCFenceCircle circle(QGeoCoordinate(item->param5(), item->param6()), item->param1(), command == MAV_CMD_NAV_FENCE_CIRCLE_INCLUSION /* inclusion */, _vehicle);
             _circles.append(circle);
         } else if (command == MAV_CMD_NAV_FENCE_RETURN_POINT) {
             _breachReturnPoint = QGeoCoordinate(item->param5(), item->param6(), item->param7());

@@ -9,15 +9,9 @@
 
 #include "QGCFencePolygon.h"
 #include "JsonHelper.h"
-#include "Vehicle.h"
-#include "ParameterManager.h"
 
-#include <cmath>
+#include "QGCFenceCommon.h"
 
-
-const auto apmParamFenceMargin = "FENCE_MARGIN";
-const auto apmParamHasParachute = "SCR_USER2";  // custom parameter to indicate presence/absence of parachute
-const auto apmParamMaxFenceAltitude = "FENCE_ALT_MAX";
 
 const char* QGCFencePolygon::_jsonInclusionKey = "inclusion";
 
@@ -25,8 +19,8 @@ QGCFencePolygon::QGCFencePolygon(bool inclusion, Vehicle* vehicle, QObject* pare
     : QGCMapPolygon (parent)
     , _inclusion    (inclusion)
     , _vehicle (vehicle)
-    , _fenceMargin (_defaultFenceMargin)
-    , _groundBufferMargin (_defaultGroundBufferMargin)
+    , _fenceMargin (getFenceMargin(vehicle))
+    , _groundBufferMargin (getGroundBufferMargin(vehicle))
     , _contingencyZone ()
     , _groundBuffer ()
 {
@@ -53,74 +47,6 @@ const QGCFencePolygon& QGCFencePolygon::operator=(const QGCFencePolygon& other)
     setVehicle(other._vehicle);
 
     return *this;
-}
-
-void QGCFencePolygon::_init(void)
-{
-    connect(this, &QGCFencePolygon::inclusionChanged, this, &QGCFencePolygon::_setDirty);
-    connect(this, &QGCFencePolygon::pathChanged, this, &QGCFencePolygon::_updateGroundBuffer);
-    connect(this, &QGCFencePolygon::pathChanged, this, &QGCFencePolygon::_updateContingencyZone);
-    _updateFenceMargin();
-    _updateGroundBufferMargin();
-}
-
-void QGCFencePolygon::_updateFenceMargin(void)
-{
-    _fenceMargin = _defaultFenceMargin;
-    if (_vehicle
-        && !_vehicle->isOfflineEditingVehicle()
-        && _vehicle->apmFirmware()
-        && _vehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, apmParamFenceMargin)) {
-        _fenceMargin = _vehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, apmParamFenceMargin)->rawValue().toDouble();
-    }
-    _updateContingencyZone();
-}
-
-void QGCFencePolygon::_updateGroundBufferMargin(void)
-{
-    constexpr auto formFactor = 4.;
-    constexpr auto maxVelocity = 18.;
-    constexpr auto parachuteGlideFactor = 2.506;
-    constexpr auto gravitationalAcceleration = 9.81;
-
-    _groundBufferMargin = _defaultGroundBufferMargin;
-    if (_vehicle
-        && !_vehicle->isOfflineEditingVehicle()
-        && _vehicle->apmFirmware()
-        && _vehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, apmParamMaxFenceAltitude)) {
-        auto maxFenceAltitudeParam = _vehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, apmParamMaxFenceAltitude);
-        double maxFenceAltitude = maxFenceAltitudeParam->rawValue().toDouble();
-        bool hasParachute = false;
-        if (_vehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, apmParamHasParachute)) {
-            auto hasParachuteParam = _vehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, apmParamHasParachute);
-            hasParachute = hasParachuteParam->rawValue().toDouble() > 0;
-        }
-        if (hasParachute) {
-            _groundBufferMargin = formFactor + maxFenceAltitude * parachuteGlideFactor;
-        } else {
-            _groundBufferMargin = formFactor + maxVelocity * std::sqrt(2 * maxFenceAltitude / gravitationalAcceleration);
-        }
-    }
-    _updateGroundBuffer();
-}
-
-void QGCFencePolygon::_setDirty(void)
-{
-    setDirty(true);
-}
-
-void QGCFencePolygon::_updateGroundBuffer(void)
-{
-    auto groundBuffer = QGCMapPolygon{*this};  // work on a temporary variable to avoid multiple update signals
-    groundBuffer.offset(_groundBufferMargin);
-    _groundBuffer = groundBuffer;
-}
-
-void QGCFencePolygon::_updateContingencyZone(void)
-{
-    auto contingencyZone = QGCMapPolygon{*this};  // work on a temporary variable to avoid multiple update signals
-    contingencyZone.offset(-_fenceMargin);
-    _contingencyZone = contingencyZone;
 }
 
 void QGCFencePolygon::saveToJson(QJsonObject& json)
@@ -159,8 +85,10 @@ bool QGCFencePolygon::loadFromJson(const QJsonObject& json, bool required, QStri
 void QGCFencePolygon::setVehicle(const Vehicle* vehicle)
 {
     _vehicle = vehicle;
-    _updateFenceMargin();
-    _updateGroundBufferMargin();
+    _fenceMargin = getFenceMargin(vehicle);
+    _updateContingencyZone();
+    _groundBufferMargin = getGroundBufferMargin(vehicle);
+    _updateGroundBuffer();
 }
 
 void QGCFencePolygon::setInclusion(bool inclusion)
@@ -169,4 +97,32 @@ void QGCFencePolygon::setInclusion(bool inclusion)
         _inclusion = inclusion;
         emit inclusionChanged(inclusion);
     }
+}
+
+void QGCFencePolygon::_init(void)
+{
+    connect(this, &QGCFencePolygon::inclusionChanged, this, &QGCFencePolygon::_setDirty);
+    connect(this, &QGCFencePolygon::pathChanged, this, &QGCFencePolygon::_updateGroundBuffer);
+    connect(this, &QGCFencePolygon::pathChanged, this, &QGCFencePolygon::_updateContingencyZone);
+    _updateContingencyZone();
+    _updateGroundBuffer();
+}
+
+void QGCFencePolygon::_setDirty(void)
+{
+    setDirty(true);
+}
+
+void QGCFencePolygon::_updateGroundBuffer(void)
+{
+    auto groundBuffer = QGCMapPolygon{*this};  // work on a temporary variable to avoid multiple update signals
+    groundBuffer.offset(_groundBufferMargin);
+    _groundBuffer = groundBuffer;
+}
+
+void QGCFencePolygon::_updateContingencyZone(void)
+{
+    auto contingencyZone = QGCMapPolygon{*this};  // work on a temporary variable to avoid multiple update signals
+    contingencyZone.offset(-_fenceMargin);
+    _contingencyZone = contingencyZone;
 }

@@ -110,7 +110,31 @@ Item {
             borderColor:        _borderColor
             interiorColor:      object.inclusion ? _interiorColorInclusion : _interiorColorExclusion
             interiorOpacity:    object.inclusion ? _interiorOpacityInclusion : _interiorOpacityExclusion
-            interactive:         _root.interactive && mapCircle && mapCircle.interactive
+            interactive:        _root.interactive && mapCircle && mapCircle.interactive
+        }
+    }
+    Instantiator {
+        model: _circles
+
+        delegate : QGCMapCircleVisuals {
+            parent:             _root
+            mapControl:         map
+            mapCircle:          object.groundBuffer
+            borderWidth:        _borderWidthInclusion
+            borderColor:        'red'
+            interactive:        false
+        }
+    }
+    Instantiator {
+        model: _circles
+
+        delegate : QGCMapCircleVisuals {
+            parent:             _root
+            mapControl:         map
+            mapCircle:          object.contingencyZone
+            borderWidth:        _borderWidthInclusion
+            borderColor:        'blue'
+            interactive:        false
         }
     }
 

@@ -108,8 +108,12 @@ void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
 
     _managerVehicle = managerVehicle;
     for (int i=0; i<_polygons.count(); i++) {
-        QGCFencePolygon* polygon = _polygons.value<QGCFencePolygon*>(i);
+        auto polygon = _polygons.value<QGCFencePolygon*>(i);
         polygon->setVehicle(_managerVehicle);
+    }
+    for (int i=0; i<_circles.count(); i++) {
+        auto circle = _polygons.value<QGCFenceCircle*>(i);
+        circle->setVehicle(_managerVehicle);
     }
 
     if (!_managerVehicle) {
@@ -181,7 +185,7 @@ bool GeoFenceController::load(const QJsonObject& json, QString& errorString)
             return false;
         }
 
-        QGCFenceCircle* fenceCircle = new QGCFenceCircle(this /* parent */);
+        QGCFenceCircle* fenceCircle = new QGCFenceCircle(_managerVehicle, this /* parent */);
         if (!fenceCircle->loadFromJson(jsonCircleValue.toObject(), errorString)) {
             return false;
         }
@@ -461,7 +465,7 @@ void GeoFenceController::addInclusionCircle(QGeoCoordinate topLeft, QGeoCoordina
     QGeoCoordinate centerTopEdge = topLeft.atDistanceAndAzimuth(halfWidthMeters, 90);
     QGeoCoordinate center(centerLeftEdge.latitude(), centerTopEdge.longitude());
 
-    QGCFenceCircle* circle = new QGCFenceCircle(center, radius, true /* inclusion */, this);
+    QGCFenceCircle* circle = new QGCFenceCircle(center, radius, true /* inclusion */, _managerVehicle, this);
     _circles.append(circle);
 
     clearAllInteractive();

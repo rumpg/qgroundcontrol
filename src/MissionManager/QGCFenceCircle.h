@@ -11,19 +11,23 @@
 
 #include "QGCMapCircle.h"
 
+class Vehicle;
+
 /// The QGCFenceCircle class provides a cicle used by GeoFence support.
 class QGCFenceCircle : public QGCMapCircle
 {
     Q_OBJECT
 
 public:
-    QGCFenceCircle(QObject* parent = nullptr);
-    QGCFenceCircle(const QGeoCoordinate& center, double radius, bool inclusion, QObject* parent = nullptr);
+    QGCFenceCircle(Vehicle* vehicle, QObject* parent = nullptr);
+    QGCFenceCircle(const QGeoCoordinate& center, double radius, bool inclusion, Vehicle* vehicle, QObject* parent = nullptr);
     QGCFenceCircle(const QGCFenceCircle& other, QObject* parent = nullptr);
 
     const QGCFenceCircle& operator=(const QGCFenceCircle& other);
 
-    Q_PROPERTY(bool inclusion READ inclusion WRITE setInclusion NOTIFY inclusionChanged)
+    Q_PROPERTY(bool             inclusion       READ inclusion          WRITE setInclusion  NOTIFY inclusionChanged)
+    Q_PROPERTY(QGCMapCircle *   groundBuffer    READ groundBuffer                           CONSTANT)
+    Q_PROPERTY(QGCMapCircle *   contingencyZone READ contingencyZone                        CONSTANT)
 
     /// Saves the QGCFenceCircle to the json object.
     ///     @param json Json object to save to
@@ -35,21 +39,32 @@ public:
     /// @return true: success, false: failure (errorString set)
     bool loadFromJson(const QJsonObject& json, QString& errorString);
 
+    void setVehicle(const Vehicle* vehicle);
+
     // Property methods
 
     bool inclusion      (void) const { return _inclusion; }
     void setInclusion   (bool inclusion);
+    QGCMapCircle * groundBuffer    (void) { return &_groundBuffer; }
+    QGCMapCircle * contingencyZone (void) { return &_contingencyZone; }
 
 signals:
     void inclusionChanged(bool inclusion);
 
 private slots:
     void _setDirty(void);
+    void _updateMarginZoneRadii(QVariant newRadius);
+    void _updateMarginZoneCenters(QGeoCoordinate newCenter);
 
 private:
     void _init(void);
 
     bool _inclusion;
+    const Vehicle* _vehicle;
+    double _fenceMargin;
+    double _groundBufferMargin;
+    QGCMapCircle _contingencyZone;
+    QGCMapCircle _groundBuffer;
 
     static const int _jsonCurrentVersion = 1;
 
