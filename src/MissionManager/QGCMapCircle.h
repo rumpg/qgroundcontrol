@@ -47,6 +47,9 @@ public:
     /// @return true: success, false: failure (errorString set)
     bool loadFromJson(const QJsonObject& json, QString& errorString);
 
+    /// Returns true if the specified coordinate is within the circle
+    Q_INVOKABLE bool containsCoordinate(const QGeoCoordinate& coordinate) const;
+
     // Property methods
 
     bool            dirty               (void) const { return _dirty; }

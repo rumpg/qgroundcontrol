@@ -130,6 +130,11 @@ bool QGCMapCircle::loadFromJson(const QJsonObject& json, QString& errorString)
     return true;
 }
 
+bool QGCMapCircle::containsCoordinate(const QGeoCoordinate &coordinate) const
+{
+    return coordinate.distanceTo(center()) <= _radius.rawValue().toDouble();
+}
+
 void QGCMapCircle::setCenter(QGeoCoordinate newCenter)
 {
     if (newCenter != _center) {

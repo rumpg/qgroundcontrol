@@ -110,7 +110,8 @@ private slots:
     void _managerSendComplete       (bool error);
     void _managerRemoveAllComplete  (bool error);
     void _parametersReady           (void);
-    void _managerVehicleChanged      (Vehicle* managerVehicle);
+    void _managerVehicleChanged     (Vehicle* managerVehicle);
+    void _checkContingencyZone      (QGeoCoordinate vehicleCoordinate);
 
 private:
     void _init(void);

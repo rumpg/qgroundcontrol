@@ -130,11 +130,31 @@ void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
     //-- GeoFenceController::supported() tests both the capability bit AND the protocol version.
     connect(_managerVehicle,  &Vehicle::capabilityBitsChanged,                  this, &GeoFenceController::supportedChanged);
     connect(_managerVehicle,  &Vehicle::requestProtocolVersion,                 this, &GeoFenceController::supportedChanged);
+    connect(_managerVehicle,  &Vehicle::coordinateChanged,                      this, &GeoFenceController::_checkContingencyZone);
 
     connect(_managerVehicle->parameterManager(), &ParameterManager::parametersReadyChanged, this, &GeoFenceController::_parametersReady);
     _parametersReady();
 
     emit supportedChanged(supported());
+}
+
+void GeoFenceController::_checkContingencyZone(QGeoCoordinate vehicleCoordinate)
+{
+    // Check that we're inside at least one of the contingency zones.
+    for (int i=0; i<_polygons.count(); i++) {
+        auto polygon = _polygons.value<QGCFencePolygon*>(i);
+        if (polygon->contingencyZone()->containsCoordinate(vehicleCoordinate)) {
+            return;
+        }
+    }
+    for (int i=0; i<_circles.count(); i++) {
+        const auto circle = _circles.value<QGCFenceCircle*>(i);
+        const auto contingencyZone = circle->contingencyZone();
+        if (contingencyZone->containsCoordinate(vehicleCoordinate)) {
+            return;
+        }
+    }
+    qgcApp()->showCriticalVehicleMessage("Drone outside of contingency zone");
 }
 
 bool GeoFenceController::load(const QJsonObject& json, QString& errorString)
