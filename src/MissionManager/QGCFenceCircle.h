@@ -25,9 +25,9 @@ public:
 
     const QGCFenceCircle& operator=(const QGCFenceCircle& other);
 
-    Q_PROPERTY(bool             inclusion       READ inclusion          WRITE setInclusion  NOTIFY inclusionChanged)
-    Q_PROPERTY(QGCMapCircle *   groundBuffer    READ groundBuffer                           CONSTANT)
-    Q_PROPERTY(QGCMapCircle *   contingencyZone READ contingencyZone                        CONSTANT)
+    Q_PROPERTY(bool                 inclusion       READ inclusion          WRITE setInclusion  NOTIFY inclusionChanged)
+    Q_PROPERTY(const QGCMapCircle*  groundBuffer    READ groundBuffer                           CONSTANT)
+    Q_PROPERTY(const QGCMapCircle*  contingencyZone READ contingencyZone                        CONSTANT)
 
     /// Saves the QGCFenceCircle to the json object.
     ///     @param json Json object to save to
@@ -43,10 +43,10 @@ public:
 
     // Property methods
 
-    bool inclusion      (void) const { return _inclusion; }
-    void setInclusion   (bool inclusion);
-    QGCMapCircle * groundBuffer    (void) { return &_groundBuffer; }
-    QGCMapCircle * contingencyZone (void) { return &_contingencyZone; }
+    bool inclusion (void) const { return _inclusion; }
+    void setInclusion (bool inclusion);
+    const QGCMapCircle* groundBuffer (void) const { return &_groundBuffer; }
+    const QGCMapCircle* contingencyZone (void) const { return &_contingencyZone; }
 
 signals:
     void inclusionChanged(bool inclusion);

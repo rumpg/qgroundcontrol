@@ -24,9 +24,9 @@ public:
 
     const QGCFencePolygon& operator=(const QGCFencePolygon& other);
 
-    Q_PROPERTY(bool             inclusion       READ inclusion          WRITE setInclusion  NOTIFY inclusionChanged)
-    Q_PROPERTY(QGCMapPolygon *  groundBuffer    READ groundBuffer                           CONSTANT)
-    Q_PROPERTY(QGCMapPolygon *  contingencyZone READ contingencyZone                        CONSTANT)
+    Q_PROPERTY(bool                 inclusion       READ inclusion          WRITE setInclusion  NOTIFY inclusionChanged)
+    Q_PROPERTY(const QGCMapPolygon* groundBuffer    READ groundBuffer                           CONSTANT)
+    Q_PROPERTY(const QGCMapPolygon* contingencyZone READ contingencyZone                        CONSTANT)
 
     /// Saves the QGCFencePolygon to the json object.
     ///     @param json Json object to save to
@@ -43,10 +43,10 @@ public:
 
     // Property methods
 
-    bool inclusion                  (void) const { return _inclusion; }
-    void setInclusion               (bool inclusion);
-    QGCMapPolygon * groundBuffer    (void) { return &_groundBuffer; }
-    QGCMapPolygon * contingencyZone (void) { return &_contingencyZone; }
+    bool inclusion (void) const { return _inclusion; }
+    void setInclusion (bool inclusion);
+    const QGCMapPolygon* groundBuffer (void) const { return &_groundBuffer; }
+    const QGCMapPolygon* contingencyZone (void) const { return &_contingencyZone; }
 
 signals:
     void inclusionChanged       (bool inclusion);
