@@ -112,7 +112,7 @@ void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
         polygon->setVehicle(_managerVehicle);
     }
     for (int i=0; i<_circles.count(); i++) {
-        auto circle = _polygons.value<QGCFenceCircle*>(i);
+        auto circle = _circles.value<QGCFenceCircle*>(i);
         circle->setVehicle(_managerVehicle);
     }
 
