@@ -106,6 +106,7 @@ private slots:
     void _setFenceFromManager       (const QList<QGCFencePolygon>& polygons, const QList<QGCFenceCircle>&  circles);
     void _setReturnPointFromManager (QGeoCoordinate breachReturnPoint);
     void _managerLoadComplete       (void);
+    void _updateFromFenceManager    (void);
     void _updateContainsItems       (void);
     void _managerSendComplete       (bool error);
     void _managerRemoveAllComplete  (bool error);
@@ -125,6 +126,7 @@ private:
     Fact                _breachReturnAltitudeFact;
     double              _breachReturnDefaultAltitude =  qQNaN();
     bool                _itemsRequested =               false;
+    bool                _managerHasLoaded =                    false;
 
     Fact*               _px4ParamCircularFenceFact =        nullptr;
     Fact*               _apmParamCircularFenceRadiusFact =  nullptr;

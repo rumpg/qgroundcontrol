@@ -43,6 +43,8 @@ const char* GeoFenceController::_apmParamCircularFenceRadius =    "FENCE_RADIUS"
 const char* GeoFenceController::_apmParamCircularFenceEnabled =    "FENCE_ENABLE";
 const char* GeoFenceController::_apmParamCircularFenceType =    "FENCE_TYPE";
 
+constexpr auto apmParamWarnIfNoFence = "SCR_USER3";
+
 GeoFenceController::GeoFenceController(PlanMasterController* masterController, QObject* parent)
     : PlanElementController         (masterController, parent)
     , _managerVehicle               (masterController->managerVehicle())
@@ -122,6 +124,7 @@ void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
     }
 
     _geoFenceManager = _managerVehicle->geoFenceManager();
+    _managerHasLoaded = false;
     connect(_geoFenceManager, &GeoFenceManager::loadComplete,                   this, &GeoFenceController::_managerLoadComplete);
     connect(_geoFenceManager, &GeoFenceManager::sendComplete,                   this, &GeoFenceController::_managerSendComplete);
     connect(_geoFenceManager, &GeoFenceManager::removeAllComplete,              this, &GeoFenceController::_managerRemoveAllComplete);
@@ -140,6 +143,20 @@ void GeoFenceController::_managerVehicleChanged(Vehicle* managerVehicle)
 
 void GeoFenceController::_checkContingencyZone(QGeoCoordinate vehicleCoordinate)
 {
+    // Warn if no fences are defined, if the corresponding parameter is set and != 0.
+    if (!containsItems()) {
+        if (_managerHasLoaded) {
+            bool warnIfNoFence = false;
+            if (_managerVehicle->apmFirmware() && _managerVehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, apmParamWarnIfNoFence)) {
+                const auto paramWarnIfNoFence = _managerVehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, apmParamWarnIfNoFence);
+                warnIfNoFence = paramWarnIfNoFence->rawValue().toDouble() != 0.;
+            }
+            if (warnIfNoFence) {
+                qgcApp()->showCriticalVehicleMessage("No fence defined.");
+            }
+        }
+        return;
+    }
     // Check that we're inside at least one of the contingency zones.
     for (int i=0; i<_polygons.count(); i++) {
         auto polygon = _polygons.value<QGCFencePolygon*>(i);
@@ -373,6 +390,12 @@ void GeoFenceController::_setReturnPointFromManager(QGeoCoordinate breachReturnP
 
 void GeoFenceController::_managerLoadComplete(void)
 {
+    _updateFromFenceManager();
+    _managerHasLoaded = true;
+}
+
+void GeoFenceController::_updateFromFenceManager(void)
+{
     // Fly view always reloads on _loadComplete
     // Plan view only reloads if:
     //  - Load was specifically requested
@@ -432,7 +455,7 @@ bool GeoFenceController::showPlanFromManagerVehicle(void)
             // Fake a _loadComplete with the current items
             qCDebug(GeoFenceControllerLog) << "showPlanFromManagerVehicle: sync complete simulate signal";
             _itemsRequested = true;
-            _managerLoadComplete();
+            _updateFromFenceManager();
             return false;
         }
     }

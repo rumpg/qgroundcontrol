@@ -39,7 +39,7 @@ inline double getGroundBufferMargin(const Vehicle* vehicle)
         bool hasParachute = false;
         if (vehicle->parameterManager()->parameterExists(FactSystem::defaultComponentId, apmParamHasParachute)) {
             auto hasParachuteParam = vehicle->parameterManager()->getParameter(FactSystem::defaultComponentId, apmParamHasParachute);
-            hasParachute = hasParachuteParam->rawValue().toDouble() > 0;
+            hasParachute = hasParachuteParam->rawValue().toDouble() > 0.;
         }
         if (hasParachute) {
             return formFactor + maxFenceAltitude * parachuteGlideFactor;
